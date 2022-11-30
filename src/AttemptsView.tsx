@@ -1,10 +1,13 @@
 import React, {
   useCallback,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   AnyAttempt,
   Attempt,
+  fromDbFormat,
 } from "./attempt";
 import {
   GymName,
@@ -12,50 +15,86 @@ import {
 } from "./gyms";
 import invert from "invert-color";
 import formatDate from "./formatDate";
+import { Session } from "@supabase/supabase-js";
+import { supabase } from "./supabaseClient";
+import {
+  deleteAttempt,
+  getAttempts,
+} from "./supabaseQueries";
 
 type AttemptsViewProps = {
   selectedGymName: GymName,
+  session: Session,
 }
 
 const AttemptsView: React.FC<AttemptsViewProps> = ({ selectedGymName }) => {
-  const attempts: Array<AnyAttempt> = useMemo(() => [
-    {
-      gymName: "Boulders Sydhavn",
-      gradeName: "Blue",
-      outcome: "Top",
-      date: new Date(),
-    },
-    {
-      gymName: "Boulders Sydhavn",
-      gradeName: "Orange",
-      outcome: "Flash",
-      date: new Date(),
-    },
-    {
-      gymName: "Boulders Sydhavn",
-      gradeName: "Purple",
-      outcome: "Fail",
-      date: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 3),
-    },
-  ], []);
+  const [attempts, setAttempts] = useState<AnyAttempt[]>();
+  const [attemptsLoading, setAttemptsLoading] = useState<boolean>();
+  const [deleteAttemptLoading, setDeleteAttemptLoading] = useState<boolean>(false);
 
-  const deleteAttempt = useCallback((attempt: AnyAttempt) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        setAttemptsLoading(true);
+
+        const { data, error } = await getAttempts();
+
+        if (error != null) {
+          throw error;
+        }
+
+        if (data != null) {
+          setAttempts(data.map(fromDbFormat));
+        } else {
+          throw new Error("Unknown error");
+        }
+      } catch (error) {
+        alert(`Error loading attempts: ${(error as Error).message}`);
+      } finally {
+        setAttemptsLoading(false);
+      }
+    })();
+  }, []);
+
+  const tryDeleteAttempt = useCallback(async (attempt: AnyAttempt) => {
     const {
       gymName,
       gradeName,
       outcome,
     } = attempt;
 
-    if (!confirm(`Really delete a ${outcome} on ${gradeName} grade in ${gymName}?`)) {
+    if (!confirm(`Really delete this ${outcome} on a ${gradeName} grade in ${gymName}?`)) {
       return;
     }
 
-    console.debug(gymName, gradeName, outcome);
+    try {
+      setDeleteAttemptLoading(true);
+
+      await deleteAttempt(attempt.id);
+
+      setAttempts((prev) => prev?.filter((a) => a.id !== attempt.id));
+    } catch (error) {
+      alert(`Error deleting attempt: ${(error as Error).message}`);
+    } finally {
+      setDeleteAttemptLoading(false);
+    }
   }, []);
 
   const filteredAttempts = useMemo(() => {
+    if (attempts == null) {
+      return [];
+    }
+
     return attempts.filter((a): a is Attempt<typeof selectedGymName>  => a.gymName === selectedGymName)
   }, [selectedGymName, attempts]);
+
+  if (attemptsLoading) {
+    return (
+      <div className="flex justify-center items-center flex-1">
+        <p className="text-3xl font-bold">Loading attempts...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex-col space-y-2 overflow-auto">
@@ -89,8 +128,11 @@ const AttemptsView: React.FC<AttemptsViewProps> = ({ selectedGymName }) => {
                 <span>{attempt.outcome}</span>
               </div>
               <button
-                className="font-bold text-white bg-red-500 text-xl border-2 border-black px-2 py-1 rounded"
-                onClick={() => deleteAttempt(attempt)}
+                className="
+                  font-bold text-white bg-red-500 text-xl border-2 border-black px-2 py-1 rounded hover:brightness-75
+                  disabled:brightness-200 disabled:hover:brightness-100
+                "
+                onClick={() => tryDeleteAttempt(attempt)}
               >
                 X
               </button>
