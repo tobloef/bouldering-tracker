@@ -43,7 +43,7 @@ function App() {
         {VIEWS.map((view) => (
           <button
             key={view}
-            className={`flex-1 text-2xl rounded border-2 border-black py-1 ${view === selectedView ? "bg-blue-200" : "bg-gray-100"} hover:brightness-75`}
+            className={`flex-1 text-2xl rounded border-2 border-black py-2 ${view === selectedView ? "bg-blue-200" : "bg-gray-100"} hover:brightness-75 font-bold`}
             onClick={() => setSelectedView(view)}
           >
             {view}
