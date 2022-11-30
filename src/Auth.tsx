@@ -2,7 +2,7 @@ import React, {
   FormEvent,
   useState,
 } from "react"
-import { supabase } from './supabaseClient'
+import { signIn } from "./supabaseQueries";
 
 type AuthProps = {};
 
@@ -15,7 +15,7 @@ const Auth: React.FC<AuthProps> = () => {
 
     try {
       setLoading(true)
-      const { error } = await supabase.auth.signInWithOtp({ email })
+      const { error } = await signIn(email);
 
       if (error) {
         throw error;

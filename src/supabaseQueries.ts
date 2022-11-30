@@ -38,3 +38,11 @@ export async function createAttempt(attempt: Omit<Attempt<GymName>, "userId" | "
       userId,
     }));
 }
+
+export async function signIn(email: string) {
+  return supabase.auth.signInWithOtp({ email,
+    options: {
+      emailRedirectTo: import.meta.env.VITE_SITE_URL,
+    },
+  });
+}
