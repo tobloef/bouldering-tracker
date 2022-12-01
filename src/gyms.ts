@@ -7,7 +7,7 @@ export type Grade = {
   fontGrades: readonly FontGrade[],
 };
 
-export type FontGrade = `${number}${"A" | "B" | "C" | ""}${"+" | ""}`;
+export type FontGrade = `${">" | ""}${number}${"A" | "B" | "C" | ""}${"+" | ""}`;
 
 export type GymName = keyof typeof GYMS;
 
@@ -45,7 +45,7 @@ export const GYMS = {
       },
       "Pink": {
         color: "#bd3086",
-        fontGrades: ["7A+", "7C+"],
+        fontGrades: [">7A+"],
       },
     }
   },
@@ -77,31 +77,31 @@ export const GYMS = {
     grades: {
       "Teal": {
         color: "#74a4a1",
-        fontGrades: [],
+        fontGrades: ["4"],
       },
       "Green": {
         color: "#42ac3b",
-        fontGrades: [],
+        fontGrades: ["5"],
       },
       "Yellow": {
         color: "#eee630",
-        fontGrades: [],
+        fontGrades: ["5B", "6A"],
       },
       "Blue": {
         color: "#1666be",
-        fontGrades: [],
+        fontGrades: ["6A", "6B"],
       },
       "Orange": {
         color: "#ff9428",
-        fontGrades: [],
+        fontGrades: ["6B", "6C"],
       },
       "Red": {
         color: "#d22425",
-        fontGrades: [],
+        fontGrades: ["6C", "7A"],
       },
       "Black": {
         color: "#000000",
-        fontGrades: [],
+        fontGrades: [">6C+"],
       },
     },
   }
