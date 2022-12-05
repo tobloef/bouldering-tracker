@@ -10,6 +10,7 @@ import {
   fromDbFormat,
 } from "./attempt";
 import {
+  Grade,
   GymName,
   GYMS,
 } from "./gyms";
@@ -105,7 +106,16 @@ const AttemptsView: React.FC<AttemptsViewProps> = ({ selectedGymName }) => {
           ? formatDate(prevAttempt.date)
           : undefined;
 
-        const grade = GYMS[attempt.gymName].grades[attempt.gradeName];
+        const grade: Grade = GYMS[attempt.gymName].grades[attempt.gradeName];
+        let gradeString;
+
+        if (grade.fontGrades.from === "below") {
+          gradeString = `${grade.fontGrades.to} and below`;
+        } else if (grade.fontGrades.to === "above") {
+          gradeString = `${grade.fontGrades.from} and above`;
+        } else {
+          gradeString = `${grade.fontGrades.from} to ${grade.fontGrades.to}`;
+        }
 
         return (
           <div className="first:-mt-2">
@@ -124,7 +134,7 @@ const AttemptsView: React.FC<AttemptsViewProps> = ({ selectedGymName }) => {
                   color: invert(grade.color, true),
                 }}
               >
-                <span>{attempt.gradeName} ({grade.fontGrades.join("/")}):</span>
+                <span>{attempt.gradeName} ({gradeString}):</span>
                 <span>{attempt.outcome}</span>
               </div>
               <button
