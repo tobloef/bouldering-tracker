@@ -44,7 +44,7 @@ const AttemptsView: React.FC<AttemptsViewProps> = ({ selectedGymName }) => {
         }
 
         if (data != null) {
-          setAttempts(data.map(fromDbFormat));
+          setAttempts(data.map(fromDbFormat).reverse());
         } else {
           throw new Error("Unknown error");
         }
